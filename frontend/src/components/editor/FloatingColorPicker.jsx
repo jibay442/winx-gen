@@ -1,0 +1,84 @@
+import { useEffect, useRef } from 'react'
+import { HexColorPicker } from 'react-colorful'
+import useWinxStore from '../../store/useWinxStore.js'
+
+const TARGET_KEY_MAP = {
+  skin:    'skinColor',
+  hair:    'hairColor',
+  eyes:    'eyeColor',
+  lips:    'lipColor',
+  outfit:  'outfitColor',
+  outfit2: 'outfitColor2',
+  wings:   'wingsColor',
+}
+
+export default function FloatingColorPicker() {
+  const { colorPicker, closeColorPicker, character, setCharacterProp } = useWinxStore()
+  const ref = useRef(null)
+
+  const { visible, target, x, y } = colorPicker
+  const charKey = TARGET_KEY_MAP[target] || null
+  const currentColor = charKey ? character[charKey] : '#ffffff'
+
+  // Fermer en cliquant à l'extérieur
+  useEffect(() => {
+    if (!visible) return
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) closeColorPicker()
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [visible, closeColorPicker])
+
+  if (!visible || !charKey) return null
+
+  // Calcul position pour rester dans l'écran
+  const pickerW = 220
+  const pickerH = 260
+  const safeX = Math.min(Math.max(x, 8), window.innerWidth  - pickerW - 8)
+  const safeY = Math.min(Math.max(y, 8), window.innerHeight - pickerH - 8)
+
+  return (
+    <div
+      ref={ref}
+      className="fixed z-50 bg-white rounded-2xl shadow-2xl border border-purple-100 p-3 select-none"
+      style={{ left: safeX, top: safeY, width: pickerW }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-semibold text-purple-700 capitalize">{target}</span>
+        <button
+          onClick={closeColorPicker}
+          className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+        >
+          ×
+        </button>
+      </div>
+
+      <HexColorPicker
+        color={currentColor}
+        onChange={(c) => setCharacterProp(charKey, c)}
+        style={{ width: '100%', height: 150 }}
+      />
+
+      <div className="flex items-center gap-2 mt-3">
+        <div
+          className="w-8 h-8 rounded-lg border border-gray-200 flex-shrink-0"
+          style={{ background: currentColor }}
+        />
+        <input
+          type="text"
+          value={currentColor.toUpperCase()}
+          onChange={(e) => {
+            const v = e.target.value
+            if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setCharacterProp(charKey, v)
+          }}
+          className="flex-1 text-xs font-mono border border-purple-200 rounded-lg px-2 py-1 outline-none focus:border-winx-purple"
+        />
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 50%, #ede9fe 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-winx-purple hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-200 shadow-fairy;
+  }
+
+  .btn-secondary {
+    @apply bg-white hover:bg-winx-muted text-winx-purple font-semibold px-4 py-2 rounded-xl border border-purple-200 transition-all duration-200;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-fairy border border-purple-100;
+  }
+
+  .menu-tab {
+    @apply flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-200;
+  }
+
+  .menu-tab.active {
+    @apply bg-winx-purple text-white shadow-fairy;
+  }
+
+  .menu-tab:not(.active) {
+    @apply text-purple-400 hover:text-winx-purple hover:bg-winx-muted;
+  }
+
+  .variant-item {
+    @apply relative cursor-pointer rounded-xl border-2 transition-all duration-200 overflow-hidden;
+  }
+
+  .variant-item.selected {
+    @apply border-winx-purple shadow-fairy;
+  }
+
+  .variant-item:not(.selected) {
+    @apply border-transparent hover:border-purple-300;
+  }
+
+  .color-swatch {
+    @apply w-8 h-8 rounded-full border-2 border-white shadow-md cursor-pointer transition-transform hover:scale-110 active:scale-95;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 99px;
+}
