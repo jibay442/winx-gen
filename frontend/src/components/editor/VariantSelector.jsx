@@ -1,85 +1,74 @@
 import useWinxStore from '../../store/useWinxStore.js'
 
 /**
- * Grille de sélection de variante avec swatch de couleur.
+ * Grille de sélection de variante + palette de couleurs pré-dessinées.
  *
  * Props:
- *   variants     — tableau [{ id, label }]
- *   selectedId   — id sélectionné
- *   charKey      — clé dans character (ex: 'hair')
- *   colorTarget  — clé pour le color picker (ex: 'hair'), null si pas de couleur
- *   colors       — palette de couleurs rapides []
- *   currentColor — couleur actuelle
- *   renderPreview(variant) — optionnel, rendu miniature SVG/emoji
+ *   variants      — [{ id, label }]
+ *   selectedId    — id sélectionné
+ *   charKey       — clé dans character pour la forme (ex: 'hair')
+ *   colorCharKey  — clé dans character pour la couleur (ex: 'hairColor')
+ *   colorTarget   — clé pour le color picker flottant (ex: 'hair')
+ *   colors        — [{ id, color, label }] couleurs pré-dessinées
+ *   currentColor  — couleur hex actuelle (pour highlight)
  */
 export default function VariantSelector({
   variants,
   selectedId,
   charKey,
+  colorCharKey,
   colorTarget,
   colors = [],
   currentColor,
-  renderPreview,
 }) {
   const { setCharacterProp, openColorPicker } = useWinxStore()
 
-  const handleColorClick = (e, target) => {
+  const handleSwatchClick = (e, target) => {
     const rect = e.currentTarget.getBoundingClientRect()
     openColorPicker(target, rect.left - 228, rect.top)
   }
 
   return (
     <div className="space-y-4">
-      {/* Grille des variantes */}
+      {/* Grille des variantes de forme */}
       <div className="grid grid-cols-2 gap-2">
         {variants.map((v) => (
           <button
             key={v.id}
             onClick={() => setCharacterProp(charKey, v.id)}
-            className={`variant-item p-3 text-left ${selectedId === v.id ? 'selected' : ''}`}
+            className={`variant-item p-3 ${selectedId === v.id ? 'selected' : ''}`}
           >
-            {renderPreview ? (
-              <div className="h-12 flex items-center justify-center mb-1">
-                {renderPreview(v)}
-              </div>
-            ) : (
-              <div className="h-10 flex items-center justify-center mb-1 text-3xl">
-                ✨
-              </div>
-            )}
+            <div className="h-10 flex items-center justify-center text-2xl mb-1">✨</div>
             <p className="text-xs font-semibold text-center text-gray-600 leading-tight">{v.label}</p>
           </button>
         ))}
       </div>
 
-      {/* Couleur */}
-      {colorTarget && (
+      {/* Palette de couleurs pré-dessinées */}
+      {colorTarget && colors.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-purple-600">Couleur</span>
+            {/* Swatch ouvre le color picker libre */}
             <button
               className="color-swatch"
               style={{ background: currentColor }}
-              onClick={(e) => handleColorClick(e, colorTarget)}
-              title="Ouvrir le sélecteur de couleur"
+              title="Couleur personnalisée"
+              onClick={(e) => handleSwatchClick(e, colorTarget)}
             />
           </div>
           <div className="flex flex-wrap gap-2">
             {colors.map((c) => (
               <button
-                key={c}
+                key={c.id}
+                title={c.label}
                 className="color-swatch"
-                style={{ background: c, outline: currentColor === c ? '2px solid #9333EA' : 'none', outlineOffset: '2px' }}
-                onClick={() => setCharacterProp(
-                  colorTarget === 'skin' ? 'skinColor' :
-                  colorTarget === 'hair' ? 'hairColor' :
-                  colorTarget === 'eyes' ? 'eyeColor'  :
-                  colorTarget === 'lips' ? 'lipColor'  :
-                  colorTarget === 'outfit'  ? 'outfitColor'  :
-                  colorTarget === 'outfit2' ? 'outfitColor2' :
-                  'wingsColor',
-                  c
-                )}
+                style={{
+                  background:    c.color,
+                  outline:       currentColor === c.color ? '2px solid #9333EA' : 'none',
+                  outlineOffset: '2px',
+                }}
+                onClick={() => setCharacterProp(colorCharKey, c.color)}
               />
             ))}
           </div>

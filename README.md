@@ -26,86 +26,91 @@ Puis ouvre **http://localhost:5173** dans ton navigateur.
 
 ---
 
-## 🎨 Ajouter de vrais dessins SVG
+## 🎨 Ajouter les dessins (Procreate / Photoshop)
 
-### Principe général
+### Comment ça marche
 
-Le personnage est composé de **6 couches SVG empilées**, chacune dans un fichier dédié. Toutes partagent le même repère : `viewBox="0 0 400 700"`.
-
-Ordre de rendu (de derrière vers devant) :
+Le personnage est composé de **PNG empilés** dans cet ordre (de derrière vers devant) :
 
 ```
-WingsLayer  →  HairLayer(back)  →  BodyLayer  →  OutfitLayer  →  EyesLayer  →  LipsLayer  →  HairLayer(front)
+Ailes → Cheveux (arrière) → Corps → Vêtements → Yeux → Lèvres → Cheveux (avant)
 ```
 
-### Variables de couleur disponibles
+L'utilisatrice choisit une couleur avec le color picker → le site trouve automatiquement **le PNG le plus proche** parmi les variantes dessinées.
 
-Les couleurs sélectionnées par l'utilisateur sont injectées automatiquement via des **variables CSS** sur le SVG parent. Utilise-les dans les `fill` de tes éléments :
+---
 
-| Variable CSS | Correspond à |
+### Convention de nommage des fichiers
+
+Tous les PNG vont dans `frontend/public/assets/` et suivent cette convention :
+
+```
+{varianteId}_{couleurId}.png
+```
+
+Les cheveux ont en plus un suffixe `_back` ou `_front` :
+```
+{varianteId}_{couleurId}_back.png
+{varianteId}_{couleurId}_front.png
+```
+
+**Exemples complets :**
+
+| Partie | Fichier | Dossier |
+|---|---|---|
+| Corps peau pêche | `body_01_peche.png` | `assets/body/` |
+| Corps peau ébène | `body_01_ebene.png` | `assets/body/` |
+| Cheveux longs châtain (arrière) | `hair_01_chatain_back.png` | `assets/hair/` |
+| Cheveux longs châtain (avant) | `hair_01_chatain_front.png` | `assets/hair/` |
+| Yeux grands bleus | `eyes_01_bleu.png` | `assets/eyes/` |
+| Lèvres rose | `lips_01_rose.png` | `assets/lips/` |
+| Robe fée violette | `outfit_01_violet.png` | `assets/outfit/` |
+| Ailes papillon roses | `wings_01_rose.png` | `assets/wings/` |
+
+---
+
+### IDs disponibles
+
+**Variantes (formes) :**
+
+| Partie | IDs disponibles |
 |---|---|
-| `var(--skin-color)` | Couleur de peau |
-| `var(--hair-color)` | Couleur des cheveux |
-| `var(--eye-color)` | Couleur des yeux (iris) |
-| `var(--lip-color)` | Couleur des lèvres |
-| `var(--outfit-color)` | Couleur principale du vêtement |
-| `var(--outfit-color2)` | Couleur accent/détails du vêtement |
-| `var(--wings-color)` | Couleur des ailes |
+| Corps | `body_01`, `body_02` |
+| Yeux | `eyes_01`, `eyes_02`, `eyes_03` |
+| Cheveux | `hair_01`, `hair_02`, `hair_03` |
+| Lèvres | `lips_01`, `lips_02` |
+| Vêtements | `outfit_01`, `outfit_02`, `outfit_03` |
+| Ailes | `wings_01`, `wings_02` |
 
-### Étapes pour ajouter une variante
+**Couleurs (suffixes) :**
 
-**1. Ouvre le fichier de la couche concernée** dans `frontend/src/components/svg/` :
+| Peau | Cheveux | Yeux | Lèvres | Vêtements | Ailes |
+|---|---|---|---|---|---|
+| `claire` | `noir` | `bleu` | `nude` | `violet` | `rose` |
+| `peche` | `brun` | `bleu_clair` | `peche` | `rose` | `violet` |
+| `doree` | `chatain` | `vert` | `rose` | `bleu` | `bleu` |
+| `caramel` | `roux` | `marron` | `framboise` | `vert` | `vert` |
+| `miel` | `blond` | `noisette` | `rouge` | `rouge` | `jaune` |
+| `chocolat` | `blanc` | `gris` | `corail` | `orange` | `rouge` |
+| `ebene` | `rose` | `violet` | `violet` | `jaune` | `blanc` |
+| | `violet` | `orange` | | `blanc` | `dore` |
+| | `bleu` | `noir` | | `noir` | |
+| | `vert` | | | `turquoise` | |
+| | `rouge` | | | `dore` | |
+| | `orange` | | | `argent` | |
 
-| Fichier | Couche |
-|---|---|
-| `BodyLayer.jsx` | Corps / silhouette (peau) |
-| `HairLayer.jsx` | Cheveux (arrière + avant) |
-| `EyesLayer.jsx` | Yeux |
-| `LipsLayer.jsx` | Lèvres |
-| `OutfitLayer.jsx` | Vêtements |
-| `WingsLayer.jsx` | Ailes |
+---
 
-**2. Ajoute un bloc `if` avec ton SVG**, en remplaçant les couleurs fixes par des variables CSS :
+### Étapes pour dessiner et ajouter un PNG
 
-```jsx
-// Exemple dans HairLayer.jsx
-export default function HairLayer({ variant, part }) {
+1. **Canvas Procreate : 400 × 700 px** (fond transparent)
+2. Dessine la partie en couleur normale — pas besoin de niveaux de gris
+3. **Exporte en PNG** avec fond transparent
+4. **Nomme le fichier** selon la convention ci-dessus
+5. **Dépose-le** dans le bon dossier `frontend/public/assets/{partie}/`
+6. Si la variante ou la couleur n'existe pas encore dans `variants.js`, ajoute-la dans `frontend/src/data/variants.js`
 
-  if (variant === 'hair_01') {
-    if (part === 'back') return (
-      <g>
-        <path d="M ..." fill="var(--hair-color)" />
-        {/* colle ici le SVG de la partie arrière */}
-      </g>
-    )
-    if (part === 'front') return (
-      <g>
-        <path d="M ..." fill="var(--hair-color)" />
-        {/* colle ici le SVG de la partie avant (mèches) */}
-      </g>
-    )
-  }
-
-  return null
-}
-```
-
-**3. Enregistre la variante** dans `frontend/src/data/variants.js` :
-
-```js
-export const HAIRS = [
-  { id: 'hair_01', label: 'Longs lisses' },  // ← ajoute ta ligne ici
-]
-```
-
-C'est tout ! La variante apparaît automatiquement dans le menu, avec le color picker fonctionnel.
-
-### Conseils pour préparer les SVG
-
-- Dessine chaque partie dans un repère **400 × 700 px**
-- Supprime les `fill` codés en dur dans ton SVG et remplace-les par `fill="var(--couleur)"` (voir tableau ci-dessus)
-- Pour les zones avec dégradé de peau ou d'ombre, utilise `opacity` plutôt qu'une couleur fixe
-- Teste directement dans le navigateur en modifiant le fichier — Vite recharge instantanément
+Les parties non encore dessinées sont simplement **invisibles** — pas d'erreur.
 
 ---
 
