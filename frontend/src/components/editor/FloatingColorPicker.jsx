@@ -7,7 +7,8 @@ const TARGET_TO_CHAR_KEY = {
   hair:   'hairColor',
   eyes:   'eyeColor',
   lips:   'lipColor',
-  outfit: 'outfitColor',
+  top:    'topColor',
+  bottom: 'bottomColor',
   wings:  'wingsColor',
 }
 

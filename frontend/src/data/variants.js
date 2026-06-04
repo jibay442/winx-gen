@@ -42,10 +42,16 @@ export const LIPS = [
   { id: 'lips_02', label: 'Lèvres pleines' },
 ]
 
-export const OUTFITS = [
-  { id: 'outfit_01', label: 'Robe fée' },
-  { id: 'outfit_02', label: 'Tenue étoile' },
-  { id: 'outfit_03', label: 'Robe papillon' },
+export const TOPS = [
+  { id: 'top_01', label: 'Haut 1' },
+  { id: 'top_02', label: 'Haut 2' },
+  { id: 'top_03', label: 'Haut 3' },
+]
+
+export const BOTTOMS = [
+  { id: 'bottom_01', label: 'Bas 1' },
+  { id: 'bottom_02', label: 'Bas 2' },
+  { id: 'bottom_03', label: 'Bas 3' },
 ]
 
 export const WINGS = [
@@ -143,9 +149,10 @@ export const DEFAULT_CHARACTER = {
   hairColor:    '#8B4513', // → chatain
   lips:         'lips_01',
   lipColor:     '#E91E8C', // → framboise
-  outfit:       'outfit_01',
-  outfitColor:  '#9B59B6', // → violet
-  outfitColor2: '#E91E8C', // → rose (accent)
+  top:          'top_01',
+  topColor:     '#9B59B6', // → violet
+  bottom:       'bottom_01',
+  bottomColor:  '#9B59B6', // → violet
   wings:        'wings_01',
   wingsColor:   '#FF9FF3', // → rose
 }

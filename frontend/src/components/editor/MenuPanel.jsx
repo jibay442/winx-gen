@@ -1,19 +1,20 @@
 import useWinxStore from '../../store/useWinxStore.js'
 import VariantSelector from './VariantSelector.jsx'
 import {
-  BODIES, EYES, HAIRS, LIPS, OUTFITS, WINGS,
+  BODIES, EYES, HAIRS, LIPS, TOPS, BOTTOMS, WINGS,
   SKIN_COLORS, HAIR_COLORS, EYE_COLORS,
   LIP_COLORS, OUTFIT_COLORS, WINGS_COLORS,
 } from '../../data/variants.js'
 
 const TABS = [
-  { id: 'body',   label: 'Corps',     icon: '🧍' },
-  { id: 'skin',   label: 'Peau',      icon: '✋' },
-  { id: 'eyes',   label: 'Yeux',      icon: '👁️' },
-  { id: 'hair',   label: 'Cheveux',   icon: '💇' },
-  { id: 'lips',   label: 'Lèvres',    icon: '💄' },
-  { id: 'outfit', label: 'Vêtements', icon: '👗' },
-  { id: 'wings',  label: 'Ailes',     icon: '🧚' },
+  { id: 'body',   label: 'Corps',   icon: '🧍' },
+  { id: 'skin',   label: 'Peau',    icon: '✋' },
+  { id: 'eyes',   label: 'Yeux',    icon: '👁️' },
+  { id: 'hair',   label: 'Cheveux', icon: '💇' },
+  { id: 'lips',   label: 'Lèvres',  icon: '💄' },
+  { id: 'top',    label: 'Haut',    icon: '👚' },
+  { id: 'bottom', label: 'Bas',     icon: '👗' },
+  { id: 'wings',  label: 'Ailes',   icon: '🧚' },
 ]
 
 export default function MenuPanel() {
@@ -26,7 +27,6 @@ export default function MenuPanel() {
 
   return (
     <aside className="w-full md:w-72 lg:w-80 flex flex-col bg-white/60 backdrop-blur-sm border-r border-purple-100 overflow-hidden">
-      {/* Onglets */}
       <nav className="flex md:flex-col gap-1 p-2 overflow-x-auto md:overflow-x-hidden flex-shrink-0">
         {TABS.map((tab) => (
           <button
@@ -117,15 +117,27 @@ export default function MenuPanel() {
           />
         )}
 
-        {activeMenu === 'outfit' && (
+        {activeMenu === 'top' && (
           <VariantSelector
-            variants={OUTFITS}
-            selectedId={character.outfit}
-            charKey="outfit"
-            colorCharKey="outfitColor"
-            colorTarget="outfit"
+            variants={TOPS}
+            selectedId={character.top}
+            charKey="top"
+            colorCharKey="topColor"
+            colorTarget="top"
             colors={OUTFIT_COLORS}
-            currentColor={character.outfitColor}
+            currentColor={character.topColor}
+          />
+        )}
+
+        {activeMenu === 'bottom' && (
+          <VariantSelector
+            variants={BOTTOMS}
+            selectedId={character.bottom}
+            charKey="bottom"
+            colorCharKey="bottomColor"
+            colorTarget="bottom"
+            colors={OUTFIT_COLORS}
+            currentColor={character.bottomColor}
           />
         )}
 
