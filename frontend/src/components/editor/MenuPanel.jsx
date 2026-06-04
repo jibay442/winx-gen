@@ -1,7 +1,7 @@
 import useWinxStore from '../../store/useWinxStore.js'
 import VariantSelector from './VariantSelector.jsx'
 import {
-  BODIES, EYES, HAIRS, LIPS, TOPS, BOTTOMS, WINGS,
+  BODIES, EYES, HAIRS, LIPS, TOPS, BOTTOMS, SHOES, WINGS,
   SKIN_COLORS, HAIR_COLORS, EYE_COLORS,
   LIP_COLORS, OUTFIT_COLORS, WINGS_COLORS,
 } from '../../data/variants.js'
@@ -13,7 +13,8 @@ const TABS = [
   { id: 'hair',   label: 'Cheveux', icon: '💇' },
   { id: 'lips',   label: 'Lèvres',  icon: '💄' },
   { id: 'top',    label: 'Haut',    icon: '👚' },
-  { id: 'bottom', label: 'Bas',     icon: '👗' },
+  { id: 'bottom', label: 'Bas',      icon: '👗' },
+  { id: 'shoes',  label: 'Chaussures', icon: '👠' },
   { id: 'wings',  label: 'Ailes',   icon: '🧚' },
 ]
 
@@ -138,6 +139,18 @@ export default function MenuPanel() {
             colorTarget="bottom"
             colors={OUTFIT_COLORS}
             currentColor={character.bottomColor}
+          />
+        )}
+
+        {activeMenu === 'shoes' && (
+          <VariantSelector
+            variants={SHOES}
+            selectedId={character.shoes}
+            charKey="shoes"
+            colorCharKey="shoesColor"
+            colorTarget="shoes"
+            colors={OUTFIT_COLORS}
+            currentColor={character.shoesColor}
           />
         )}
 

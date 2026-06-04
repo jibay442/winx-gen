@@ -9,6 +9,7 @@ const TARGET_TO_CHAR_KEY = {
   lips:   'lipColor',
   top:    'topColor',
   bottom: 'bottomColor',
+  shoes:  'shoesColor',
   wings:  'wingsColor',
 }
 

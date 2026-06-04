@@ -54,6 +54,12 @@ export const BOTTOMS = [
   { id: 'bottom_03', label: 'Bas 3' },
 ]
 
+export const SHOES = [
+  { id: 'shoes_01', label: 'Chaussures 1' },
+  { id: 'shoes_02', label: 'Chaussures 2' },
+  { id: 'shoes_03', label: 'Chaussures 3' },
+]
+
 export const WINGS = [
   { id: 'wings_01',   label: 'Ailes papillon' },
   { id: 'wings_02',   label: 'Ailes fée' },
@@ -153,6 +159,8 @@ export const DEFAULT_CHARACTER = {
   topColor:     '#9B59B6', // → violet
   bottom:       'bottom_01',
   bottomColor:  '#9B59B6', // → violet
+  shoes:        'shoes_01',
+  shoesColor:   '#9B59B6', // → violet
   wings:        'wings_01',
   wingsColor:   '#FF9FF3', // → rose
 }

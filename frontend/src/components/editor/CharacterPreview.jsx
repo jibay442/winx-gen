@@ -14,6 +14,7 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
     lips, lipColor,
     top, topColor,
     bottom, bottomColor,
+    shoes, shoesColor,
     wings, wingsColor,
   } = character
 
@@ -23,6 +24,7 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
   const lipId    = findClosestColor(lipColor,    LIP_COLORS).id
   const topId    = findClosestColor(topColor,    OUTFIT_COLORS).id
   const bottomId = findClosestColor(bottomColor, OUTFIT_COLORS).id
+  const shoesId  = findClosestColor(shoesColor,  OUTFIT_COLORS).id
   const wingsId  = findClosestColor(wingsColor,  WINGS_COLORS).id
 
   const hide = (e) => { e.target.style.display = 'none' }
@@ -42,6 +44,7 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
       <img style={imgStyle} src={assetPath('body',   body,   skinId)}             alt="" onError={hide} />
       <img style={imgStyle} src={assetPath('bottom', bottom, bottomId)}           alt="" onError={hide} />
       <img style={imgStyle} src={assetPath('top',    top,    topId)}              alt="" onError={hide} />
+      <img style={imgStyle} src={assetPath('shoes',  shoes,  shoesId)}            alt="" onError={hide} />
       <img style={imgStyle} src={assetPath('eyes',   eyes,   eyeId)}              alt="" onError={hide} />
       <img style={imgStyle} src={assetPath('lips',   lips,   lipId)}              alt="" onError={hide} />
       <img style={imgStyle} src={assetPath('hair',   hair,   hairId,  'front')}   alt="" onError={hide} />
