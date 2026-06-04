@@ -103,7 +103,7 @@ Les cheveux ont en plus un suffixe `_back` ou `_front` :
 
 ### Étapes pour dessiner et ajouter un PNG
 
-1. **Canvas Procreate : 400 × 700 px** (fond transparent)
+1. **Canvas Procreate : 600 × 1791 px** (fond transparent — taille fixe pour tous les dessins)
 2. Dessine la partie en couleur normale — pas besoin de niveaux de gris
 3. **Exporte en PNG** avec fond transparent
 4. **Nomme le fichier** selon la convention ci-dessus

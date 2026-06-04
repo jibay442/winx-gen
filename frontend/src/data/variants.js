@@ -1,4 +1,11 @@
 /**
+ * Dimensions du canvas de dessin de ta copine.
+ * TOUS les PNG doivent faire exactement cette taille pour que les couches s'alignent.
+ */
+export const CANVAS_WIDTH  = 600
+export const CANVAS_HEIGHT = 1791
+
+/**
  * Registre des variantes et couleurs disponibles.
  *
  * Chaque couleur a un `id` qui correspond au nom du fichier PNG dessiné.
