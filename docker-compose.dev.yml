@@ -1,0 +1,12 @@
+# Surcharge pour le développement local — hot reload activé
+# Usage : docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+services:
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
