@@ -58,7 +58,15 @@ const useWinxStore = create((set, get) => ({
       canvasWidth:  config.canvas?.width  || CANVAS_WIDTH,
       canvasHeight: config.canvas?.height || CANVAS_HEIGHT,
     }
-    if (config.parts) update.parts = config.parts
+    if (config.parts) {
+      // Fusionne : les tableaux non-vides du serveur remplacent les défauts,
+      // les tableaux vides (variants supprimées) laissent les défauts intacts.
+      const merged = { ...DEFAULT_PARTS }
+      Object.entries(config.parts).forEach(([key, arr]) => {
+        if (Array.isArray(arr) && arr.length > 0) merged[key] = arr
+      })
+      update.parts = merged
+    }
     set(update)
   },
 

@@ -1,7 +1,6 @@
 import useWinxStore from '../../store/useWinxStore.js'
 import VariantSelector from './VariantSelector.jsx'
 import {
-  DEFAULT_PARTS,
   SKIN_COLORS, HAIR_COLORS, EYE_COLORS,
   LIP_COLORS, OUTFIT_COLORS, WINGS_COLORS,
 } from '../../data/variants.js'
@@ -28,16 +27,15 @@ export default function MenuPanel() {
     openColorPicker('skin', rect.left - 228, rect.top)
   }
 
-  // [] est truthy en JS → on vérifie la longueur pour tomber sur les défauts si vide
-  const p = (key) => parts[key]?.length > 0 ? parts[key] : DEFAULT_PARTS[key] || []
-  const bodies  = p('body')
-  const hairs   = p('hair')
-  const eyes    = p('eyes')
-  const lips    = p('lips')
-  const tops    = p('top')
-  const bottoms = p('bottom')
-  const shoes   = p('shoes')
-  const wings   = p('wings')
+  // Le store fusionne déjà avec les défauts dans applyConfig
+  const bodies  = parts.body   || []
+  const hairs   = parts.hair   || []
+  const eyes    = parts.eyes   || []
+  const lips    = parts.lips   || []
+  const tops    = parts.top    || []
+  const bottoms = parts.bottom || []
+  const shoes   = parts.shoes  || []
+  const wings   = parts.wings  || []
 
   return (
     <aside className="w-full md:w-72 lg:w-80 flex flex-col bg-white/60 backdrop-blur-sm border-r border-purple-100 overflow-hidden">

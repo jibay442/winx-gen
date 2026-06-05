@@ -2,6 +2,11 @@ import { forwardRef } from 'react'
 import { assetPath } from '../../utils/assetResolver.js'
 import useWinxStore from '../../store/useWinxStore.js'
 
+// GIF 1×1 transparent : remplace les PNG manquants pour éviter
+// que le navigateur affiche un rectangle "image cassée" que le filtre SVG colorie.
+const TRANSPARENT_GIF =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+
 function hexToMatrix(hex = '#ffffff') {
   const h = (hex || '#ffffff').replace('#', '').padEnd(6, '0')
   const r = parseInt(h.slice(0, 2), 16) / 255
@@ -27,15 +32,15 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
   } = character
 
   const layers = [
-    wings !== 'wings_none' && { src: assetPath('wings',  wings),             color: wingsColor      },
-    { src: assetPath('hair',   hairBack,  'back'),  color: hairBackColor  },
-    { src: assetPath('body',   body),               color: skinColor      },
-    { src: assetPath('bottom', bottom),             color: bottomColor    },
-    { src: assetPath('top',    top),                color: topColor       },
-    { src: assetPath('shoes',  shoes),              color: shoesColor     },
-    { src: assetPath('eyes',   eyes),               color: eyeColor       },
-    { src: assetPath('lips',   lips),               color: lipColor       },
-    { src: assetPath('hair',   hairFront, 'front'), color: hairFrontColor },
+    wings !== 'wings_none' && { id: 'wings',     src: assetPath('wings',  wings),             color: wingsColor      },
+    { id: 'hair-back',  src: assetPath('hair',   hairBack,  'back'),  color: hairBackColor  },
+    { id: 'body',       src: assetPath('body',   body),               color: skinColor      },
+    { id: 'bottom',     src: assetPath('bottom', bottom),             color: bottomColor    },
+    { id: 'top',        src: assetPath('top',    top),                color: topColor       },
+    { id: 'shoes',      src: assetPath('shoes',  shoes),              color: shoesColor     },
+    { id: 'eyes',       src: assetPath('eyes',   eyes),               color: eyeColor       },
+    { id: 'lips',       src: assetPath('lips',   lips),               color: lipColor       },
+    { id: 'hair-front', src: assetPath('hair',   hairFront, 'front'), color: hairFrontColor },
   ].filter(Boolean)
 
   return (
@@ -52,35 +57,36 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
         style={{ display: 'block' }}
       >
         <defs>
-          {layers.map((layer, i) => (
+          {layers.map((layer) => (
             <filter
-              key={i}
-              id={`f${i}`}
+              key={layer.id}
+              id={`f-${layer.id}`}
               colorInterpolationFilters="sRGB"
               filterUnits="userSpaceOnUse"
               x="0" y="0"
               width={canvasWidth}
               height={canvasHeight}
             >
-              {/*
-                1. feColorMatrix : multiplie le gris par la couleur choisie
-                2. feComposite   : clippe le résultat au contour alpha de l'image
-                   → les zones transparentes restent transparentes, pas de carré coloré
-              */}
               <feColorMatrix type="matrix" values={hexToMatrix(layer.color)} result="tinted" />
+              {/* feComposite clip : zones transparentes du PNG restent transparentes */}
               <feComposite in="tinted" in2="SourceGraphic" operator="in" />
             </filter>
           ))}
         </defs>
-        {layers.map((layer, i) => (
+
+        {layers.map((layer) => (
           <image
-            key={i}
+            key={layer.id}
             href={layer.src}
             x="0" y="0"
             width={canvasWidth}
             height={canvasHeight}
             preserveAspectRatio="none"
-            filter={`url(#f${i})`}
+            filter={`url(#f-${layer.id})`}
+            onError={(e) => {
+              // PNG manquant → GIF transparent → le filtre ne colorie rien
+              e.currentTarget.setAttribute('href', TRANSPARENT_GIF)
+            }}
           />
         ))}
       </svg>
