@@ -34,6 +34,7 @@ export default function Navbar() {
           <NavLink to="/create"  className={linkClass}>✏️ <span className="hidden sm:inline">Créer</span></NavLink>
           <NavLink to="/studio"  className={linkClass}>📸 <span className="hidden sm:inline">Studio</span></NavLink>
           <NavLink to="/gallery" className={linkClass}>🖼️ <span className="hidden sm:inline">Galerie</span></NavLink>
+          <NavLink to="/admin" className={linkClass}>⚙️</NavLink>
         </nav>
       </div>
     </header>

@@ -7,6 +7,8 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_PROXY_TARGET=http://backend:3000
+    volumes:
+      - assets_data:/app/public/assets
     depends_on:
       backend:
         condition: service_healthy
@@ -22,6 +24,10 @@ services:
     environment:
       - DATABASE_URL=postgresql://winx:winx@db:5432/winx_gen
       - PORT=3000
+      - ASSETS_PATH=/app/assets
+      - ADMIN_PASSWORD=winx2024
+    volumes:
+      - assets_data:/app/assets
     depends_on:
       db:
         condition: service_healthy
@@ -53,6 +59,7 @@ services:
 
 volumes:
   postgres_data:
+  assets_data:
 
 networks:
   winx-net:

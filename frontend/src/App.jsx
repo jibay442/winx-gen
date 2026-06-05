@@ -3,6 +3,7 @@ import Navbar from './components/layout/Navbar.jsx'
 import CreatePage from './pages/CreatePage.jsx'
 import StudioPage from './pages/StudioPage.jsx'
 import GalleryPage from './pages/GalleryPage.jsx'
+import AdminPage from './pages/AdminPage.jsx'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <Route path="/studio" element={<StudioPage />} />
             <Route path="/studio/:id" element={<StudioPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </main>
       </div>
