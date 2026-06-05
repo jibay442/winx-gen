@@ -21,7 +21,7 @@ export default function VariantSelector({
   colors = [],
   currentColor,
 }) {
-  const { setCharacterProp, openColorPicker } = useWinxStore()
+  const { setCharacterProp, openColorPicker, getLabel } = useWinxStore()
 
   const handleSwatchClick = (e, target) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -39,7 +39,7 @@ export default function VariantSelector({
             className={`variant-item p-3 ${selectedId === v.id ? 'selected' : ''}`}
           >
             <div className="h-10 flex items-center justify-center text-2xl mb-1">✨</div>
-            <p className="text-xs font-semibold text-center text-gray-600 leading-tight">{v.label}</p>
+            <p className="text-xs font-semibold text-center text-gray-600 leading-tight">{getLabel(v.id, v.label)}</p>
           </button>
         ))}
       </div>

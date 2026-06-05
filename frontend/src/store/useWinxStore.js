@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { DEFAULT_CHARACTER, DEFAULT_STUDIO } from '../data/variants.js'
+import { DEFAULT_CHARACTER, DEFAULT_STUDIO, CANVAS_WIDTH, CANVAS_HEIGHT } from '../data/variants.js'
 
 const useWinxStore = create((set, get) => ({
   // ── Personnage ──────────────────────────────────────────────────────────
@@ -47,6 +47,19 @@ const useWinxStore = create((set, get) => ({
   // ── UI : modal sauvegarde ────────────────────────────────────────────────
   saveModalOpen: false,
   setSaveModalOpen: (v) => set({ saveModalOpen: v }),
+
+  // ── Config serveur (canvas + labels) ─────────────────────────────────────
+  canvasWidth:   CANVAS_WIDTH,
+  canvasHeight:  CANVAS_HEIGHT,
+  variantLabels: {},
+
+  applyConfig: (config) => set({
+    canvasWidth:   config.canvas?.width  || CANVAS_WIDTH,
+    canvasHeight:  config.canvas?.height || CANVAS_HEIGHT,
+    variantLabels: config.variantLabels  || {},
+  }),
+
+  getLabel: (id, defaultLabel) => get().variantLabels[id] || defaultLabel,
 }))
 
 export default useWinxStore

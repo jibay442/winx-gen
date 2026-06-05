@@ -5,7 +5,21 @@ import { pipeline } from 'stream/promises'
 const ASSETS_PATH    = process.env.ASSETS_PATH    || './assets'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'winx2024'
 
-const VALID_PARTS = ['body', 'hair', 'eyes', 'lips', 'top', 'bottom', 'shoes', 'wings']
+const VALID_PARTS  = ['body', 'hair', 'eyes', 'lips', 'top', 'bottom', 'shoes', 'wings']
+const CONFIG_PATH  = () => path.join(ASSETS_PATH, 'config.json')
+
+function readConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH(), 'utf8'))
+  } catch {
+    return { canvas: { width: 600, height: 1791 }, variantLabels: {} }
+  }
+}
+
+function writeConfig(data) {
+  ensureDir(ASSETS_PATH)
+  fs.writeFileSync(CONFIG_PATH(), JSON.stringify(data, null, 2))
+}
 
 function checkAuth(req, reply) {
   if (req.headers['x-admin-password'] !== ADMIN_PASSWORD) {
@@ -20,6 +34,21 @@ function ensureDir(dirPath) {
 }
 
 export default async function adminRoutes(fastify) {
+  // Config publique (lue par le frontend au démarrage)
+  fastify.get('/api/config', async () => readConfig())
+
+  // Config admin (lecture + écriture)
+  fastify.get('/api/admin/config', async (req, reply) => {
+    if (!checkAuth(req, reply)) return
+    return readConfig()
+  })
+
+  fastify.put('/api/admin/config', async (req, reply) => {
+    if (!checkAuth(req, reply)) return
+    writeConfig(req.body)
+    return req.body
+  })
+
   // Vérification du mot de passe
   fastify.post('/api/admin/auth', async (req, reply) => {
     const { password } = req.body

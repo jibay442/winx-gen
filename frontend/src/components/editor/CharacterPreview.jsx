@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import TintedImage from '../svg/TintedImage.jsx'
 import { assetPath } from '../../utils/assetResolver.js'
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../../data/variants.js'
+import useWinxStore from '../../store/useWinxStore.js'
 
 /**
  * Affiche le personnage en empilant les PNG niveaux de gris teintés.
@@ -9,6 +9,8 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../../data/variants.js'
  * Les images manquantes sont ignorées silencieusement.
  */
 const CharacterPreview = forwardRef(function CharacterPreview({ character, className = '' }, ref) {
+  const canvasWidth  = useWinxStore(s => s.canvasWidth)
+  const canvasHeight = useWinxStore(s => s.canvasHeight)
   const {
     body,   skinColor,
     eyes,   eyeColor,
@@ -25,7 +27,7 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
       ref={ref}
       className={`relative overflow-hidden ${className}`}
       style={{
-        aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+        aspectRatio: `${canvasWidth} / ${canvasHeight}`,
         width: 'auto',
       }}
     >

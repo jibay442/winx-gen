@@ -1,11 +1,20 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import axios from 'axios'
 import Navbar from './components/layout/Navbar.jsx'
 import CreatePage from './pages/CreatePage.jsx'
 import StudioPage from './pages/StudioPage.jsx'
 import GalleryPage from './pages/GalleryPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
+import useWinxStore from './store/useWinxStore.js'
 
 export default function App() {
+  const applyConfig = useWinxStore(s => s.applyConfig)
+
+  useEffect(() => {
+    axios.get('/api/config').then(r => applyConfig(r.data)).catch(() => {})
+  }, [])
+
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
