@@ -24,7 +24,10 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
     <div
       ref={ref}
       className={`relative overflow-hidden ${className}`}
-      style={{ aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}` }}
+      style={{
+        aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+        width: 'auto',
+      }}
     >
       {/* Ordre : ailes → cheveux arrière → corps → bas → haut → chaussures → yeux → lèvres → cheveux avant */}
       {wings !== 'wings_none' && (

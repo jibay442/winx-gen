@@ -108,7 +108,7 @@ export default function CreatePage() {
           <CharacterPreview
             ref={previewRef}
             character={character}
-            className="h-full max-h-[500px] w-auto aspect-[4/7]"
+            className="h-full max-h-[580px]"
           />
         </div>
 
