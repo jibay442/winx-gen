@@ -2,14 +2,13 @@ import fs from 'fs'
 import path from 'path'
 import { pipeline } from 'stream/promises'
 
-const ASSETS_PATH = process.env.ASSETS_PATH || './assets'
+const ASSETS_PATH    = process.env.ASSETS_PATH    || './assets'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'winx2024'
 
 const VALID_PARTS = ['body', 'hair', 'eyes', 'lips', 'top', 'bottom', 'shoes', 'wings']
 
 function checkAuth(req, reply) {
-  const pwd = req.headers['x-admin-password']
-  if (pwd !== ADMIN_PASSWORD) {
+  if (req.headers['x-admin-password'] !== ADMIN_PASSWORD) {
     reply.code(401).send({ error: 'Mot de passe incorrect' })
     return false
   }
@@ -21,67 +20,70 @@ function ensureDir(dirPath) {
 }
 
 export default async function adminRoutes(fastify) {
-  // Vérifier le mot de passe admin
+  // Vérification du mot de passe
   fastify.post('/api/admin/auth', async (req, reply) => {
     const { password } = req.body
     if (password !== ADMIN_PASSWORD) return reply.code(401).send({ error: 'Mot de passe incorrect' })
     return { ok: true }
   })
 
-  // Lister les assets d'une partie
+  // Liste des fichiers d'une partie
   fastify.get('/api/admin/assets/:partie', async (req, reply) => {
     if (!checkAuth(req, reply)) return
     const { partie } = req.params
     if (!VALID_PARTS.includes(partie)) return reply.code(400).send({ error: 'Partie invalide' })
-
     const dir = path.join(ASSETS_PATH, partie)
     ensureDir(dir)
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.png'))
-    return files
+    return fs.readdirSync(dir).filter(f => f.endsWith('.png'))
   })
 
-  // Upload un PNG
+  // Upload d'un PNG
+  // Le frontend envoie les champs texte EN PREMIER, puis le fichier en dernier
   fastify.post('/api/admin/upload', async (req, reply) => {
     if (!checkAuth(req, reply)) return
 
-    const data = await req.file()
-    if (!data) return reply.code(400).send({ error: 'Aucun fichier reçu' })
+    const fields = {}
+    let savedFilename = null
 
-    const partie     = data.fields.partie?.value
-    const varianteId = data.fields.varianteId?.value
-    const couleurId  = data.fields.couleurId?.value
-    const suffix     = data.fields.suffix?.value || ''
+    for await (const part of req.parts()) {
+      if (part.type === 'file') {
+        const { partie, varianteId, suffix = '' } = fields
 
-    if (!partie || !varianteId || !couleurId) {
-      return reply.code(400).send({ error: 'Champs partie, varianteId et couleurId requis' })
+        if (!partie || !varianteId) {
+          await part.toBuffer() // vider le stream pour éviter une fuite mémoire
+          return reply.code(400).send({ error: 'Champs partie et varianteId requis' })
+        }
+        if (!VALID_PARTS.includes(partie)) {
+          await part.toBuffer()
+          return reply.code(400).send({ error: 'Partie invalide' })
+        }
+
+        const filename = suffix
+          ? `${varianteId}_${suffix}.png`
+          : `${varianteId}.png`
+
+        const dir = path.join(ASSETS_PATH, partie)
+        ensureDir(dir)
+        await pipeline(part.file, fs.createWriteStream(path.join(dir, filename)))
+        savedFilename = filename
+      } else {
+        fields[part.fieldname] = part.value
+      }
     }
-    if (!VALID_PARTS.includes(partie)) {
-      return reply.code(400).send({ error: 'Partie invalide' })
-    }
 
-    const filename = suffix
-      ? `${varianteId}_${couleurId}_${suffix}.png`
-      : `${varianteId}_${couleurId}.png`
-
-    const dir      = path.join(ASSETS_PATH, partie)
-    const filepath = path.join(dir, filename)
-    ensureDir(dir)
-
-    await pipeline(data.file, fs.createWriteStream(filepath))
-    return { ok: true, filename, path: `/assets/${partie}/${filename}` }
+    if (!savedFilename) return reply.code(400).send({ error: 'Aucun fichier reçu' })
+    return { ok: true, filename: savedFilename, path: `/assets/${fields.partie}/${savedFilename}` }
   })
 
-  // Supprimer un asset
+  // Suppression d'un fichier
   fastify.delete('/api/admin/assets/:partie/:filename', async (req, reply) => {
     if (!checkAuth(req, reply)) return
     const { partie, filename } = req.params
-
-    if (!VALID_PARTS.includes(partie)) return reply.code(400).send({ error: 'Partie invalide' })
-    if (!filename.endsWith('.png')) return reply.code(400).send({ error: 'Fichier invalide' })
+    if (!VALID_PARTS.includes(partie))  return reply.code(400).send({ error: 'Partie invalide' })
+    if (!filename.endsWith('.png'))     return reply.code(400).send({ error: 'Fichier invalide' })
 
     const filepath = path.join(ASSETS_PATH, partie, filename)
     if (!fs.existsSync(filepath)) return reply.code(404).send({ error: 'Fichier introuvable' })
-
     fs.unlinkSync(filepath)
     return reply.code(204).send()
   })

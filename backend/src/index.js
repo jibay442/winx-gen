@@ -8,8 +8,11 @@ import adminRoutes from './routes/admin.js'
 const fastify = Fastify({ logger: true })
 const PORT = parseInt(process.env.PORT || '3000')
 
-await fastify.register(cors, { origin: true })
-await fastify.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }) // 10 MB max
+await fastify.register(cors, {
+  origin: true,
+  allowedHeaders: ['Content-Type', 'Accept', 'x-admin-password'],
+})
+await fastify.register(multipart, { limits: { fileSize: 20 * 1024 * 1024 } }) // 20 MB max
 
 fastify.get('/health', async () => ({ status: 'ok' }))
 

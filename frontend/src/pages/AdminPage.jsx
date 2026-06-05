@@ -1,49 +1,39 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import {
-  BODIES, HAIRS, EYES, LIPS, TOPS, BOTTOMS, SHOES, WINGS,
-  SKIN_COLORS, HAIR_COLORS, EYE_COLORS, LIP_COLORS, OUTFIT_COLORS, WINGS_COLORS,
-} from '../data/variants.js'
+import { BODIES, HAIRS, EYES, LIPS, TOPS, BOTTOMS, SHOES, WINGS } from '../data/variants.js'
 
 const PARTS = [
-  { id: 'body',   label: 'Corps',       variants: BODIES,  colors: SKIN_COLORS,   hasSuffix: false },
-  { id: 'hair',   label: 'Cheveux',     variants: HAIRS,   colors: HAIR_COLORS,   hasSuffix: true  },
-  { id: 'eyes',   label: 'Yeux',        variants: EYES,    colors: EYE_COLORS,    hasSuffix: false },
-  { id: 'lips',   label: 'Lèvres',      variants: LIPS,    colors: LIP_COLORS,    hasSuffix: false },
-  { id: 'top',    label: 'Haut',        variants: TOPS,    colors: OUTFIT_COLORS, hasSuffix: false },
-  { id: 'bottom', label: 'Bas',         variants: BOTTOMS, colors: OUTFIT_COLORS, hasSuffix: false },
-  { id: 'shoes',  label: 'Chaussures',  variants: SHOES,   colors: OUTFIT_COLORS, hasSuffix: false },
-  { id: 'wings',  label: 'Ailes',       variants: WINGS.filter(w => w.id !== 'wings_none'), colors: WINGS_COLORS, hasSuffix: false },
+  { id: 'body',   label: 'Corps',      variants: BODIES,  hasSuffix: false },
+  { id: 'hair',   label: 'Cheveux',    variants: HAIRS,   hasSuffix: true  },
+  { id: 'eyes',   label: 'Yeux',       variants: EYES,    hasSuffix: false },
+  { id: 'lips',   label: 'Lèvres',     variants: LIPS,    hasSuffix: false },
+  { id: 'top',    label: 'Haut',       variants: TOPS,    hasSuffix: false },
+  { id: 'bottom', label: 'Bas',        variants: BOTTOMS, hasSuffix: false },
+  { id: 'shoes',  label: 'Chaussures', variants: SHOES,   hasSuffix: false },
+  { id: 'wings',  label: 'Ailes',      variants: WINGS.filter(w => w.id !== 'wings_none'), hasSuffix: false },
 ]
 
 const api = axios.create({ baseURL: '/api' })
 
-function setAuthHeader(password) {
-  api.defaults.headers['x-admin-password'] = password
-}
-
 export default function AdminPage() {
-  const [password, setPassword]     = useState(() => localStorage.getItem('admin_pwd') || '')
-  const [authed, setAuthed]         = useState(false)
-  const [authError, setAuthError]   = useState(false)
+  const [password, setPassword]   = useState(() => localStorage.getItem('admin_pwd') || '')
+  const [authed, setAuthed]       = useState(false)
+  const [authError, setAuthError] = useState(false)
 
-  const [partie, setPartie]         = useState('body')
+  const [partie, setPartie]       = useState('body')
   const [varianteId, setVarianteId] = useState('')
-  const [couleurId, setCouleurId]   = useState('')
-  const [suffix, setSuffix]         = useState('back')
-  const [file, setFile]             = useState(null)
-  const [dragOver, setDragOver]     = useState(false)
-  const [uploading, setUploading]   = useState(false)
-  const [uploadMsg, setUploadMsg]   = useState(null)
-  const [assets, setAssets]         = useState([])
+  const [suffix, setSuffix]       = useState('back')
+  const [file, setFile]           = useState(null)
+  const [dragOver, setDragOver]   = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadMsg, setUploadMsg] = useState(null)
+  const [assets, setAssets]       = useState([])
 
   const inputRef = useRef(null)
   const currentPart = PARTS.find(p => p.id === partie)
 
-  // Init sélections quand la partie change
   useEffect(() => {
     setVarianteId(currentPart?.variants[0]?.id || '')
-    setCouleurId(currentPart?.colors[0]?.id || '')
   }, [partie])
 
   const loadAssets = useCallback(async () => {
@@ -59,7 +49,7 @@ export default function AdminPage() {
   const handleLogin = async () => {
     try {
       await api.post('/admin/auth', { password })
-      setAuthHeader(password)
+      api.defaults.headers['x-admin-password'] = password
       localStorage.setItem('admin_pwd', password)
       setAuthed(true)
       setAuthError(false)
@@ -80,29 +70,31 @@ export default function AdminPage() {
   }
 
   const previewFilename = () => {
-    if (!varianteId || !couleurId) return '—'
+    if (!varianteId) return '—'
     const s = currentPart?.hasSuffix ? `_${suffix}` : ''
-    return `${varianteId}_${couleurId}${s}.png`
+    return `${varianteId}${s}.png`
   }
 
   const handleUpload = async () => {
-    if (!file || !varianteId || !couleurId) return
+    if (!file || !varianteId) return
     setUploading(true)
     setUploadMsg(null)
     try {
       const form = new FormData()
-      form.append('file', file)
+      // ⚠️ Les champs texte DOIVENT être envoyés AVANT le fichier
       form.append('partie', partie)
       form.append('varianteId', varianteId)
-      form.append('couleurId', couleurId)
       if (currentPart?.hasSuffix) form.append('suffix', suffix)
+      form.append('file', file)
 
       await api.post('/admin/upload', form)
-      setUploadMsg({ ok: true, text: `✅ ${previewFilename()} uploadé !` })
+      setUploadMsg({ ok: true, text: `✅ ${previewFilename()} mis en ligne !` })
       setFile(null)
+      if (inputRef.current) inputRef.current.value = ''
       loadAssets()
-    } catch {
-      setUploadMsg({ ok: false, text: '❌ Erreur lors de l\'upload.' })
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Erreur lors de l\'upload.'
+      setUploadMsg({ ok: false, text: `❌ ${msg}` })
     } finally {
       setUploading(false)
     }
@@ -114,7 +106,7 @@ export default function AdminPage() {
     loadAssets()
   }
 
-  // ── Écran de login ────────────────────────────────────────────────────────
+  // ── Login ──────────────────────────────────────────────────────────────────
   if (!authed) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
@@ -137,7 +129,7 @@ export default function AdminPage() {
     )
   }
 
-  // ── Interface admin ───────────────────────────────────────────────────────
+  // ── Interface admin ────────────────────────────────────────────────────────
   return (
     <div className="flex-1 p-6 max-w-4xl mx-auto w-full space-y-6">
       <div className="flex items-center justify-between">
@@ -153,6 +145,9 @@ export default function AdminPage() {
       {/* Formulaire d'upload */}
       <div className="card p-6 space-y-5">
         <h2 className="font-bold text-purple-700">Ajouter un dessin</h2>
+        <p className="text-xs text-purple-400">
+          Dessins en niveaux de gris — la couleur est appliquée automatiquement par le site.
+        </p>
 
         {/* Sélection partie */}
         <div>
@@ -174,37 +169,21 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Variante */}
-          <div>
-            <label className="text-xs font-semibold text-purple-600 block mb-1">Variante</label>
-            <select
-              value={varianteId}
-              onChange={e => setVarianteId(e.target.value)}
-              className="w-full border border-purple-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-winx-purple"
-            >
-              {currentPart?.variants.map(v => (
-                <option key={v.id} value={v.id}>{v.label} ({v.id})</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Couleur */}
-          <div>
-            <label className="text-xs font-semibold text-purple-600 block mb-1">Couleur</label>
-            <select
-              value={couleurId}
-              onChange={e => setCouleurId(e.target.value)}
-              className="w-full border border-purple-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-winx-purple"
-            >
-              {currentPart?.colors.map(c => (
-                <option key={c.id} value={c.id}>{c.label} ({c.id})</option>
-              ))}
-            </select>
-          </div>
+        {/* Variante */}
+        <div>
+          <label className="text-xs font-semibold text-purple-600 block mb-1">Variante</label>
+          <select
+            value={varianteId}
+            onChange={e => setVarianteId(e.target.value)}
+            className="w-full border border-purple-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-winx-purple"
+          >
+            {currentPart?.variants.map(v => (
+              <option key={v.id} value={v.id}>{v.label} ({v.id})</option>
+            ))}
+          </select>
         </div>
 
-        {/* Suffixe (cheveux uniquement) */}
+        {/* Suffixe cheveux */}
         {currentPart?.hasSuffix && (
           <div>
             <label className="text-xs font-semibold text-purple-600 block mb-2">Partie cheveux</label>
@@ -226,7 +205,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Nom du fichier résultant */}
+        {/* Nom du fichier */}
         <div className="bg-purple-50 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="text-xs text-purple-500 font-medium">Nom du fichier :</span>
           <code className="text-sm font-mono font-bold text-winx-purple">{previewFilename()}</code>
@@ -263,18 +242,13 @@ export default function AdminPage() {
               <p className="text-xs text-purple-300">ou clique pour choisir un fichier</p>
             </div>
           )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png"
-            className="hidden"
-            onChange={e => handleFile(e.target.files[0])}
-          />
+          <input ref={inputRef} type="file" accept="image/png" className="hidden"
+            onChange={e => handleFile(e.target.files[0])} />
         </div>
 
         <button
           onClick={handleUpload}
-          disabled={!file || !varianteId || !couleurId || uploading}
+          disabled={!file || !varianteId || uploading}
           className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? '⏳ Upload en cours...' : '⬆️ Mettre en ligne'}
@@ -287,11 +261,13 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* Liste des assets existants */}
+      {/* Galerie des assets */}
       <div className="card p-6">
         <h2 className="font-bold text-purple-700 mb-4">
-          Dessins en ligne — <span className="text-purple-400 capitalize">{currentPart?.label}</span>
-          <span className="ml-2 text-xs font-normal text-purple-400">({assets.length} fichier{assets.length !== 1 ? 's' : ''})</span>
+          Dessins en ligne — <span className="capitalize text-purple-500">{currentPart?.label}</span>
+          <span className="ml-2 text-xs font-normal text-purple-400">
+            ({assets.length} fichier{assets.length !== 1 ? 's' : ''})
+          </span>
         </h2>
 
         {assets.length === 0 ? (
@@ -299,8 +275,8 @@ export default function AdminPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {assets.map(filename => (
-              <div key={filename} className="border border-purple-100 rounded-xl overflow-hidden group">
-                <div className="bg-purple-50 h-28 flex items-center justify-center p-2">
+              <div key={filename} className="border border-purple-100 rounded-xl overflow-hidden">
+                <div className="bg-gray-100 h-28 flex items-center justify-center p-2">
                   <img
                     src={`/assets/${partie}/${filename}`}
                     alt={filename}
@@ -309,11 +285,8 @@ export default function AdminPage() {
                 </div>
                 <div className="p-2 flex items-center justify-between gap-1">
                   <p className="text-[10px] font-mono text-purple-500 truncate">{filename}</p>
-                  <button
-                    onClick={() => handleDelete(filename)}
-                    className="text-red-400 hover:text-red-600 flex-shrink-0 text-sm"
-                    title="Supprimer"
-                  >
+                  <button onClick={() => handleDelete(filename)}
+                    className="text-red-400 hover:text-red-600 flex-shrink-0 text-sm" title="Supprimer">
                     🗑️
                   </button>
                 </div>
