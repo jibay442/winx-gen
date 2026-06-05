@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [authed, setAuthed]       = useState(false)
   const [authError, setAuthError] = useState(false)
   const [tab, setTab]             = useState('upload') // upload | settings
+  const [imgVersion, setImgVersion] = useState(Date.now()) // cache-bust après upload
 
   // Upload
   const [partie, setPartie]       = useState('body')
@@ -43,6 +44,16 @@ export default function AdminPage() {
 
   const inputRef = useRef(null)
   const currentPart = PARTS.find(p => p.id === partie)
+
+  // Auto-login si mot de passe déjà sauvegardé
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_pwd')
+    if (!saved) return
+    api.defaults.headers['x-admin-password'] = saved
+    api.post('/admin/auth', { password: saved })
+      .then(() => { setPassword(saved); setAuthed(true) })
+      .catch(() => { localStorage.removeItem('admin_pwd'); api.defaults.headers['x-admin-password'] = '' })
+  }, [])
 
   useEffect(() => { setVarianteId(currentPart?.variants[0]?.id || '') }, [partie])
 
@@ -100,6 +111,7 @@ export default function AdminPage() {
       setUploadMsg({ ok: true, text: `✅ ${previewFilename()} mis en ligne !` })
       setFile(null)
       if (inputRef.current) inputRef.current.value = ''
+      setImgVersion(Date.now()) // force le navigateur à recharger les images
       loadAssets()
     } catch (err) {
       setUploadMsg({ ok: false, text: `❌ ${err.response?.data?.error || 'Erreur upload'}` })
@@ -275,7 +287,7 @@ export default function AdminPage() {
                 {assets.map(filename => (
                   <div key={filename} className="border border-purple-100 rounded-xl overflow-hidden">
                     <div className="bg-gray-100 h-28 flex items-center justify-center p-2">
-                      <img src={`/assets/${partie}/${filename}`} alt={filename} className="h-full object-contain" />
+                      <img src={`/assets/${partie}/${filename}?v=${imgVersion}`} alt={filename} className="h-full object-contain" />
                     </div>
                     <div className="p-2 flex items-center justify-between gap-1">
                       <p className="text-[10px] font-mono text-purple-500 truncate">{filename}</p>

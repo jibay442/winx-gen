@@ -1,16 +1,24 @@
 import { forwardRef } from 'react'
-import TintedImage from '../svg/TintedImage.jsx'
 import { assetPath } from '../../utils/assetResolver.js'
 import useWinxStore from '../../store/useWinxStore.js'
 
+function hexToMatrix(hex = '#ffffff') {
+  const h = (hex || '#ffffff').replace('#', '').padEnd(6, '0')
+  const r = parseInt(h.slice(0, 2), 16) / 255
+  const g = parseInt(h.slice(2, 4), 16) / 255
+  const b = parseInt(h.slice(4, 6), 16) / 255
+  return `${r} 0 0 0 0  0 ${g} 0 0 0  0 0 ${b} 0 0  0 0 0 1 0`
+}
+
 /**
- * Affiche le personnage en empilant les PNG niveaux de gris teintés.
- * Chaque couche est colorée par SVG feColorMatrix avec la couleur choisie.
- * Les images manquantes sont ignorées silencieusement.
+ * Rendu en un seul SVG avec toutes les couches et leurs filtres.
+ * Un SVG unique évite les conflits d'IDs entre filtres et garantit
+ * que chaque filtre s'applique bien à sa propre image.
  */
 const CharacterPreview = forwardRef(function CharacterPreview({ character, className = '' }, ref) {
   const canvasWidth  = useWinxStore(s => s.canvasWidth)
   const canvasHeight = useWinxStore(s => s.canvasHeight)
+
   const {
     body,   skinColor,
     eyes,   eyeColor,
@@ -22,27 +30,56 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
     wings,  wingsColor,
   } = character
 
+  const layers = [
+    wings !== 'wings_none' && { src: assetPath('wings',  wings),          color: wingsColor  },
+    { src: assetPath('hair',   hair,   'back'),  color: hairColor   },
+    { src: assetPath('body',   body),            color: skinColor   },
+    { src: assetPath('bottom', bottom),          color: bottomColor },
+    { src: assetPath('top',    top),             color: topColor    },
+    { src: assetPath('shoes',  shoes),           color: shoesColor  },
+    { src: assetPath('eyes',   eyes),            color: eyeColor    },
+    { src: assetPath('lips',   lips),            color: lipColor    },
+    { src: assetPath('hair',   hair,   'front'), color: hairColor   },
+  ].filter(Boolean)
+
   return (
     <div
       ref={ref}
-      className={`relative overflow-hidden ${className}`}
-      style={{
-        aspectRatio: `${canvasWidth} / ${canvasHeight}`,
-        width: 'auto',
-      }}
+      className={`relative ${className}`}
+      style={{ aspectRatio: `${canvasWidth} / ${canvasHeight}`, width: 'auto' }}
     >
-      {/* Ordre : ailes → cheveux arrière → corps → bas → haut → chaussures → yeux → lèvres → cheveux avant */}
-      {wings !== 'wings_none' && (
-        <TintedImage src={assetPath('wings',  wings,  '')}      color={wingsColor}  />
-      )}
-      <TintedImage src={assetPath('hair',   hair,   'back')}    color={hairColor}   />
-      <TintedImage src={assetPath('body',   body)}              color={skinColor}   />
-      <TintedImage src={assetPath('bottom', bottom)}            color={bottomColor} />
-      <TintedImage src={assetPath('top',    top)}               color={topColor}    />
-      <TintedImage src={assetPath('shoes',  shoes)}             color={shoesColor}  />
-      <TintedImage src={assetPath('eyes',   eyes)}              color={eyeColor}    />
-      <TintedImage src={assetPath('lips',   lips)}              color={lipColor}    />
-      <TintedImage src={assetPath('hair',   hair,   'front')}   color={hairColor}   />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
+        width="100%"
+        height="100%"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          {layers.map((layer, i) => (
+            <filter
+              key={i}
+              id={`f${i}`}
+              colorInterpolationFilters="sRGB"
+              x="0" y="0" width="100%" height="100%"
+            >
+              <feColorMatrix type="matrix" values={hexToMatrix(layer.color)} />
+            </filter>
+          ))}
+        </defs>
+
+        {layers.map((layer, i) => (
+          <image
+            key={i}
+            href={layer.src}
+            x="0" y="0"
+            width={canvasWidth}
+            height={canvasHeight}
+            preserveAspectRatio="none"
+            filter={`url(#f${i})`}
+          />
+        ))}
+      </svg>
     </div>
   )
 })

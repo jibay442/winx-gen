@@ -83,7 +83,7 @@ export default function CreatePage() {
       <MenuPanel />
 
       {/* Zone personnage */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 p-4 min-h-0 overflow-auto">
+      <div className="flex-1 flex flex-col items-center justify-between gap-2 p-4 min-h-0 overflow-auto">
         {/* Barre d'actions */}
         <div className="flex items-center gap-3 w-full max-w-sm">
           <span className="flex-1 text-sm font-semibold text-purple-700 truncate">
@@ -103,12 +103,13 @@ export default function CreatePage() {
           </button>
         </div>
 
-        {/* Aperçu personnage */}
-        <div className="flex-1 flex items-center justify-center w-full min-h-0">
+        {/* Aperçu personnage — prend tout l'espace disponible */}
+        <div className="flex-1 flex items-center justify-center w-full min-h-0 py-2">
           <CharacterPreview
             ref={previewRef}
             character={character}
-            className="h-full max-h-[580px]"
+            className="max-h-full"
+            style={{ height: '100%' }}
           />
         </div>
 
