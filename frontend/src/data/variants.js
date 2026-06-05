@@ -18,7 +18,20 @@ export const CANVAS_HEIGHT = 1791
  *   3. C'est tout !
  */
 
-// ── Formes / silhouettes ───────────────────────────────────────────────────
+// ── Variantes par défaut (utilisées si le serveur n'a pas encore de config) ──
+
+export const DEFAULT_PARTS = {
+  body:   [{ id: 'body_01', label: 'Silhouette 1' }, { id: 'body_02', label: 'Silhouette 2' }],
+  hair:   [{ id: 'hair_01', label: 'Longs lisses' }, { id: 'hair_02', label: 'Courts bouclés' }, { id: 'hair_03', label: 'Queue de cheval' }],
+  eyes:   [{ id: 'eyes_01', label: 'Grands yeux' }, { id: 'eyes_02', label: 'Yeux en amande' }, { id: 'eyes_03', label: 'Yeux ronds' }],
+  lips:   [{ id: 'lips_01', label: 'Lèvres douces' }, { id: 'lips_02', label: 'Lèvres pleines' }],
+  top:    [{ id: 'top_01', label: 'Haut 1' }, { id: 'top_02', label: 'Haut 2' }, { id: 'top_03', label: 'Haut 3' }],
+  bottom: [{ id: 'bottom_01', label: 'Bas 1' }, { id: 'bottom_02', label: 'Bas 2' }, { id: 'bottom_03', label: 'Bas 3' }],
+  shoes:  [{ id: 'shoes_01', label: 'Chaussures 1' }, { id: 'shoes_02', label: 'Chaussures 2' }, { id: 'shoes_03', label: 'Chaussures 3' }],
+  wings:  [{ id: 'wings_01', label: 'Ailes papillon' }, { id: 'wings_02', label: 'Ailes fée' }, { id: 'wings_none', label: 'Sans ailes' }],
+}
+
+// ── Formes / silhouettes (compat) ─────────────────────────────────────────
 
 export const BODIES = [
   { id: 'body_01', label: 'Silhouette 1' },
@@ -147,22 +160,24 @@ export const WINGS_COLORS = [
 // ── Valeurs par défaut ─────────────────────────────────────────────────────
 
 export const DEFAULT_CHARACTER = {
-  body:         'body_01',
-  skinColor:    '#F5C5A3', // → peche
-  eyes:         'eyes_01',
-  eyeColor:     '#4A90D9', // → bleu
-  hair:         'hair_01',
-  hairColor:    '#8B4513', // → chatain
-  lips:         'lips_01',
-  lipColor:     '#E91E8C', // → framboise
-  top:          'top_01',
-  topColor:     '#9B59B6', // → violet
-  bottom:       'bottom_01',
-  bottomColor:  '#9B59B6', // → violet
-  shoes:        'shoes_01',
-  shoesColor:   '#9B59B6', // → violet
-  wings:        'wings_01',
-  wingsColor:   '#FF9FF3', // → rose
+  body:           'body_01',
+  skinColor:      '#F5C5A3',
+  eyes:           'eyes_01',
+  eyeColor:       '#4A90D9',
+  hairBack:       'hair_01',
+  hairBackColor:  '#8B4513',
+  hairFront:      'hair_01',
+  hairFrontColor: '#8B4513',
+  lips:           'lips_01',
+  lipColor:       '#E91E8C',
+  top:            'top_01',
+  topColor:       '#9B59B6',
+  bottom:         'bottom_01',
+  bottomColor:    '#9B59B6',
+  shoes:          'shoes_01',
+  shoesColor:     '#9B59B6',
+  wings:          'wings_01',
+  wingsColor:     '#FF9FF3',
 }
 
 export const DEFAULT_STUDIO = {

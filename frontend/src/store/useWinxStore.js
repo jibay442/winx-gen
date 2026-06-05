@@ -1,19 +1,19 @@
 import { create } from 'zustand'
-import { DEFAULT_CHARACTER, DEFAULT_STUDIO, CANVAS_WIDTH, CANVAS_HEIGHT } from '../data/variants.js'
+import { DEFAULT_CHARACTER, DEFAULT_STUDIO, DEFAULT_PARTS, CANVAS_WIDTH, CANVAS_HEIGHT } from '../data/variants.js'
 
 const useWinxStore = create((set, get) => ({
-  // ── Personnage ──────────────────────────────────────────────────────────
+  // ── Personnage ────────────────────────────────────────────────────────────
   character: { ...DEFAULT_CHARACTER },
   setCharacterProp: (key, value) =>
     set(s => ({ character: { ...s.character, [key]: value } })),
   resetCharacter: () => set({ character: { ...DEFAULT_CHARACTER } }),
 
-  // ── Studio ──────────────────────────────────────────────────────────────
+  // ── Studio ────────────────────────────────────────────────────────────────
   studio: { ...DEFAULT_STUDIO },
   setStudioProp: (key, value) =>
     set(s => ({ studio: { ...s.studio, [key]: value } })),
 
-  // ── Création en cours d'édition (null = nouvelle) ───────────────────────
+  // ── Création en cours ─────────────────────────────────────────────────────
   currentId: null,
   currentName: 'Ma Winx',
   setCurrentId: (id) => set({ currentId: id }),
@@ -33,33 +33,41 @@ const useWinxStore = create((set, get) => ({
     studio:      { ...DEFAULT_STUDIO },
   }),
 
-  // ── UI : menu actif ──────────────────────────────────────────────────────
+  // ── UI : menu actif ───────────────────────────────────────────────────────
   activeMenu: 'body',
   setActiveMenu: (menu) => set({ activeMenu: menu }),
 
-  // ── UI : color picker flottant ───────────────────────────────────────────
+  // ── UI : color picker flottant ────────────────────────────────────────────
   colorPicker: { visible: false, target: null, x: 0, y: 0 },
   openColorPicker: (target, x, y) =>
     set({ colorPicker: { visible: true, target, x, y } }),
   closeColorPicker: () =>
     set(s => ({ colorPicker: { ...s.colorPicker, visible: false } })),
 
-  // ── UI : modal sauvegarde ────────────────────────────────────────────────
+  // ── UI : modal sauvegarde ─────────────────────────────────────────────────
   saveModalOpen: false,
   setSaveModalOpen: (v) => set({ saveModalOpen: v }),
 
-  // ── Config serveur (canvas + labels) ─────────────────────────────────────
-  canvasWidth:   CANVAS_WIDTH,
-  canvasHeight:  CANVAS_HEIGHT,
-  variantLabels: {},
+  // ── Config serveur ────────────────────────────────────────────────────────
+  canvasWidth:  CANVAS_WIDTH,
+  canvasHeight: CANVAS_HEIGHT,
+  parts:        { ...DEFAULT_PARTS },
 
-  applyConfig: (config) => set({
-    canvasWidth:   config.canvas?.width  || CANVAS_WIDTH,
-    canvasHeight:  config.canvas?.height || CANVAS_HEIGHT,
-    variantLabels: config.variantLabels  || {},
-  }),
+  applyConfig: (config) => {
+    const update = {
+      canvasWidth:  config.canvas?.width  || CANVAS_WIDTH,
+      canvasHeight: config.canvas?.height || CANVAS_HEIGHT,
+    }
+    if (config.parts) update.parts = config.parts
+    set(update)
+  },
 
-  getLabel: (id, defaultLabel) => get().variantLabels[id] || defaultLabel,
+  // Retourne les variantes d'une partie (depuis le serveur ou les défauts)
+  getVariants: (part) => get().parts[part] || DEFAULT_PARTS[part] || [],
+
+  // Met à jour les variantes d'une partie et sauvegarde dans config
+  setPartVariants: (part, variants) =>
+    set(s => ({ parts: { ...s.parts, [part]: variants } })),
 }))
 
 export default useWinxStore

@@ -10,36 +10,32 @@ function hexToMatrix(hex = '#ffffff') {
   return `${r} 0 0 0 0  0 ${g} 0 0 0  0 0 ${b} 0 0  0 0 0 1 0`
 }
 
-/**
- * Rendu en un seul SVG avec toutes les couches et leurs filtres.
- * Un SVG unique évite les conflits d'IDs entre filtres et garantit
- * que chaque filtre s'applique bien à sa propre image.
- */
 const CharacterPreview = forwardRef(function CharacterPreview({ character, className = '' }, ref) {
   const canvasWidth  = useWinxStore(s => s.canvasWidth)
   const canvasHeight = useWinxStore(s => s.canvasHeight)
 
   const {
-    body,   skinColor,
-    eyes,   eyeColor,
-    hair,   hairColor,
-    lips,   lipColor,
-    top,    topColor,
-    bottom, bottomColor,
-    shoes,  shoesColor,
-    wings,  wingsColor,
+    body,      skinColor,
+    eyes,      eyeColor,
+    hairBack,  hairBackColor,
+    hairFront, hairFrontColor,
+    lips,      lipColor,
+    top,       topColor,
+    bottom,    bottomColor,
+    shoes,     shoesColor,
+    wings,     wingsColor,
   } = character
 
   const layers = [
-    wings !== 'wings_none' && { src: assetPath('wings',  wings),          color: wingsColor  },
-    { src: assetPath('hair',   hair,   'back'),  color: hairColor   },
-    { src: assetPath('body',   body),            color: skinColor   },
-    { src: assetPath('bottom', bottom),          color: bottomColor },
-    { src: assetPath('top',    top),             color: topColor    },
-    { src: assetPath('shoes',  shoes),           color: shoesColor  },
-    { src: assetPath('eyes',   eyes),            color: eyeColor    },
-    { src: assetPath('lips',   lips),            color: lipColor    },
-    { src: assetPath('hair',   hair,   'front'), color: hairColor   },
+    wings !== 'wings_none' && { src: assetPath('wings',  wings),             color: wingsColor      },
+    { src: assetPath('hair',   hairBack,  'back'),  color: hairBackColor  },
+    { src: assetPath('body',   body),               color: skinColor      },
+    { src: assetPath('bottom', bottom),             color: bottomColor    },
+    { src: assetPath('top',    top),                color: topColor       },
+    { src: assetPath('shoes',  shoes),              color: shoesColor     },
+    { src: assetPath('eyes',   eyes),               color: eyeColor       },
+    { src: assetPath('lips',   lips),               color: lipColor       },
+    { src: assetPath('hair',   hairFront, 'front'), color: hairFrontColor },
   ].filter(Boolean)
 
   return (
@@ -57,27 +53,16 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
       >
         <defs>
           {layers.map((layer, i) => (
-            <filter
-              key={i}
-              id={`f${i}`}
-              colorInterpolationFilters="sRGB"
-              x="0" y="0" width="100%" height="100%"
-            >
+            <filter key={i} id={`f${i}`} colorInterpolationFilters="sRGB"
+              x="0" y="0" width="100%" height="100%">
               <feColorMatrix type="matrix" values={hexToMatrix(layer.color)} />
             </filter>
           ))}
         </defs>
-
         {layers.map((layer, i) => (
-          <image
-            key={i}
-            href={layer.src}
-            x="0" y="0"
-            width={canvasWidth}
-            height={canvasHeight}
-            preserveAspectRatio="none"
-            filter={`url(#f${i})`}
-          />
+          <image key={i} href={layer.src}
+            x="0" y="0" width={canvasWidth} height={canvasHeight}
+            preserveAspectRatio="none" filter={`url(#f${i})`} />
         ))}
       </svg>
     </div>

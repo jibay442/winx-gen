@@ -12,7 +12,9 @@ export default function App() {
   const applyConfig = useWinxStore(s => s.applyConfig)
 
   useEffect(() => {
-    axios.get('/api/config').then(r => applyConfig(r.data)).catch(() => {})
+    axios.get('/api/config')
+      .then(r => applyConfig(r.data))
+      .catch(() => { /* config non disponible, défauts utilisés */ })
   }, [])
 
   return (

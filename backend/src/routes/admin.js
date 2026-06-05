@@ -8,11 +8,30 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'winx2024'
 const VALID_PARTS  = ['body', 'hair', 'eyes', 'lips', 'top', 'bottom', 'shoes', 'wings']
 const CONFIG_PATH  = () => path.join(ASSETS_PATH, 'config.json')
 
+const DEFAULT_CONFIG = {
+  canvas: { width: 600, height: 1791 },
+  parts: {
+    body:   [{ id: 'body_01', label: 'Silhouette 1' }, { id: 'body_02', label: 'Silhouette 2' }],
+    hair:   [{ id: 'hair_01', label: 'Longs lisses' }, { id: 'hair_02', label: 'Courts bouclés' }, { id: 'hair_03', label: 'Queue de cheval' }],
+    eyes:   [{ id: 'eyes_01', label: 'Grands yeux' }, { id: 'eyes_02', label: 'Yeux en amande' }, { id: 'eyes_03', label: 'Yeux ronds' }],
+    lips:   [{ id: 'lips_01', label: 'Lèvres douces' }, { id: 'lips_02', label: 'Lèvres pleines' }],
+    top:    [{ id: 'top_01', label: 'Haut 1' }, { id: 'top_02', label: 'Haut 2' }, { id: 'top_03', label: 'Haut 3' }],
+    bottom: [{ id: 'bottom_01', label: 'Bas 1' }, { id: 'bottom_02', label: 'Bas 2' }, { id: 'bottom_03', label: 'Bas 3' }],
+    shoes:  [{ id: 'shoes_01', label: 'Chaussures 1' }, { id: 'shoes_02', label: 'Chaussures 2' }, { id: 'shoes_03', label: 'Chaussures 3' }],
+    wings:  [{ id: 'wings_01', label: 'Ailes papillon' }, { id: 'wings_02', label: 'Ailes fée' }, { id: 'wings_none', label: 'Sans ailes' }],
+  },
+}
+
 function readConfig() {
   try {
-    return JSON.parse(fs.readFileSync(CONFIG_PATH(), 'utf8'))
+    const data = JSON.parse(fs.readFileSync(CONFIG_PATH(), 'utf8'))
+    // Fusionner avec les défauts pour les clés manquantes
+    return {
+      canvas: data.canvas || DEFAULT_CONFIG.canvas,
+      parts:  data.parts  || DEFAULT_CONFIG.parts,
+    }
   } catch {
-    return { canvas: { width: 600, height: 1791 }, variantLabels: {} }
+    return { ...DEFAULT_CONFIG }
   }
 }
 
@@ -47,6 +66,60 @@ export default async function adminRoutes(fastify) {
     if (!checkAuth(req, reply)) return
     writeConfig(req.body)
     return req.body
+  })
+
+  // Ajouter une variante à une partie
+  fastify.post('/api/admin/parts/:partie/variants', async (req, reply) => {
+    if (!checkAuth(req, reply)) return
+    const { partie } = req.params
+    if (!VALID_PARTS.includes(partie)) return reply.code(400).send({ error: 'Partie invalide' })
+
+    const { id, label } = req.body
+    if (!id || !label) return reply.code(400).send({ error: 'id et label requis' })
+    if (!/^[a-z0-9_]+$/.test(id)) return reply.code(400).send({ error: 'id invalide (lettres minuscules, chiffres, _)' })
+
+    const config = readConfig()
+    const variants = config.parts[partie] || []
+    if (variants.find(v => v.id === id)) return reply.code(409).send({ error: 'Cet id existe déjà' })
+
+    variants.push({ id, label })
+    config.parts[partie] = variants
+    writeConfig(config)
+    return { ok: true, variant: { id, label } }
+  })
+
+  // Renommer une variante
+  fastify.put('/api/admin/parts/:partie/variants/:id', async (req, reply) => {
+    if (!checkAuth(req, reply)) return
+    const { partie, id } = req.params
+    if (!VALID_PARTS.includes(partie)) return reply.code(400).send({ error: 'Partie invalide' })
+
+    const { label } = req.body
+    if (!label) return reply.code(400).send({ error: 'label requis' })
+
+    const config = readConfig()
+    const variant = (config.parts[partie] || []).find(v => v.id === id)
+    if (!variant) return reply.code(404).send({ error: 'Variante introuvable' })
+
+    variant.label = label
+    writeConfig(config)
+    return { ok: true, variant }
+  })
+
+  // Supprimer une variante
+  fastify.delete('/api/admin/parts/:partie/variants/:id', async (req, reply) => {
+    if (!checkAuth(req, reply)) return
+    const { partie, id } = req.params
+    if (!VALID_PARTS.includes(partie)) return reply.code(400).send({ error: 'Partie invalide' })
+    if (id === 'wings_none') return reply.code(400).send({ error: 'Cette variante ne peut pas être supprimée' })
+
+    const config = readConfig()
+    const before = (config.parts[partie] || []).length
+    config.parts[partie] = (config.parts[partie] || []).filter(v => v.id !== id)
+    if (config.parts[partie].length === before) return reply.code(404).send({ error: 'Variante introuvable' })
+
+    writeConfig(config)
+    return reply.code(204).send()
   })
 
   // Vérification du mot de passe
