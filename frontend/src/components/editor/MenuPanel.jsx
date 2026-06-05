@@ -28,14 +28,16 @@ export default function MenuPanel() {
     openColorPicker('skin', rect.left - 228, rect.top)
   }
 
-  const bodies  = parts.body   || DEFAULT_PARTS.body   || []
-  const hairs   = parts.hair   || DEFAULT_PARTS.hair   || []
-  const eyes    = parts.eyes   || DEFAULT_PARTS.eyes   || []
-  const lips    = parts.lips   || DEFAULT_PARTS.lips   || []
-  const tops    = parts.top    || DEFAULT_PARTS.top    || []
-  const bottoms = parts.bottom || DEFAULT_PARTS.bottom || []
-  const shoes   = parts.shoes  || DEFAULT_PARTS.shoes  || []
-  const wings   = parts.wings  || DEFAULT_PARTS.wings  || []
+  // [] est truthy en JS → on vérifie la longueur pour tomber sur les défauts si vide
+  const p = (key) => parts[key]?.length > 0 ? parts[key] : DEFAULT_PARTS[key] || []
+  const bodies  = p('body')
+  const hairs   = p('hair')
+  const eyes    = p('eyes')
+  const lips    = p('lips')
+  const tops    = p('top')
+  const bottoms = p('bottom')
+  const shoes   = p('shoes')
+  const wings   = p('wings')
 
   return (
     <aside className="w-full md:w-72 lg:w-80 flex flex-col bg-white/60 backdrop-blur-sm border-r border-purple-100 overflow-hidden">

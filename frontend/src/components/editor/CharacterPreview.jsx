@@ -53,16 +53,35 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
       >
         <defs>
           {layers.map((layer, i) => (
-            <filter key={i} id={`f${i}`} colorInterpolationFilters="sRGB"
-              x="0" y="0" width="100%" height="100%">
-              <feColorMatrix type="matrix" values={hexToMatrix(layer.color)} />
+            <filter
+              key={i}
+              id={`f${i}`}
+              colorInterpolationFilters="sRGB"
+              filterUnits="userSpaceOnUse"
+              x="0" y="0"
+              width={canvasWidth}
+              height={canvasHeight}
+            >
+              {/*
+                1. feColorMatrix : multiplie le gris par la couleur choisie
+                2. feComposite   : clippe le résultat au contour alpha de l'image
+                   → les zones transparentes restent transparentes, pas de carré coloré
+              */}
+              <feColorMatrix type="matrix" values={hexToMatrix(layer.color)} result="tinted" />
+              <feComposite in="tinted" in2="SourceGraphic" operator="in" />
             </filter>
           ))}
         </defs>
         {layers.map((layer, i) => (
-          <image key={i} href={layer.src}
-            x="0" y="0" width={canvasWidth} height={canvasHeight}
-            preserveAspectRatio="none" filter={`url(#f${i})`} />
+          <image
+            key={i}
+            href={layer.src}
+            x="0" y="0"
+            width={canvasWidth}
+            height={canvasHeight}
+            preserveAspectRatio="none"
+            filter={`url(#f${i})`}
+          />
         ))}
       </svg>
     </div>
