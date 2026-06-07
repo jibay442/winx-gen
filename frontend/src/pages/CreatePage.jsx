@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { toPng } from 'html-to-image'
 import useWinxStore from '../store/useWinxStore.js'
 import MenuPanel from '../components/editor/MenuPanel.jsx'
-import CharacterPreview from '../components/editor/CharacterPreview.jsx'
+import ZoomablePreview from '../components/editor/ZoomablePreview.jsx'
 import FloatingColorPicker from '../components/editor/FloatingColorPicker.jsx'
 import { getCreation, createCreation, updateCreation } from '../api/winxApi.js'
 
@@ -105,12 +105,7 @@ export default function CreatePage() {
 
         {/* Aperçu personnage — prend tout l'espace disponible */}
         <div className="flex-1 flex items-center justify-center w-full min-h-0 py-2">
-          <CharacterPreview
-            ref={previewRef}
-            character={character}
-            className="max-h-full"
-            style={{ height: '100%' }}
-          />
+          <ZoomablePreview ref={previewRef} character={character} />
         </div>
 
         {/* Bouton nouveau */}
