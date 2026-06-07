@@ -13,7 +13,17 @@ const PART_LABELS = {
   wings:  'Ailes',
 }
 const VALID_PARTS = Object.keys(PART_LABELS)
-const HAS_SUFFIX  = { hair: true }
+const SUFFIX_OPTIONS = {
+  hair: [
+    { id: 'back',  label: '⬅️ Arrière' },
+    { id: 'front', label: '➡️ Avant' },
+  ],
+  eyes: [
+    { id: 'white', label: '⚪ Blanc de l\'œil' },
+    { id: 'iris',  label: '👁️ Iris' },
+  ],
+}
+const HAS_SUFFIX = Object.fromEntries(Object.keys(SUFFIX_OPTIONS).map(p => [p, true]))
 
 const api = axios.create({ baseURL: '/api' })
 
@@ -44,7 +54,7 @@ export default function AdminPage() {
   // Upload
   const [partie, setPartie]         = useState('body')
   const [varianteId, setVarianteId] = useState('')
-  const [suffix, setSuffix]         = useState('back')
+  const [suffix, setSuffix]         = useState(SUFFIX_OPTIONS.hair[0].id)
   const [file, setFile]             = useState(null)
   const [dragOver, setDragOver]     = useState(false)
   const [uploading, setUploading]   = useState(false)
@@ -67,6 +77,12 @@ export default function AdminPage() {
   const inputRef = useRef(null)
   const currentVariants = getVariants(partie)
   const currentPart = { id: partie, hasSuffix: !!HAS_SUFFIX[partie] }
+  const suffixOptions = SUFFIX_OPTIONS[partie] || []
+
+  // Réinitialise le suffixe sélectionné quand on change de partie
+  useEffect(() => {
+    if (suffixOptions.length) setSuffix(suffixOptions[0].id)
+  }, [partie, suffixOptions])
 
   // Auto-login
   useEffect(() => {
@@ -269,17 +285,17 @@ export default function AdminPage() {
               </select>
             </div>
 
-            {/* Suffixe cheveux */}
+            {/* Suffixe (parties à plusieurs calques) */}
             {currentPart.hasSuffix && (
               <div>
-                <label className="text-xs font-semibold text-purple-600 block mb-2">Partie cheveux</label>
+                <label className="text-xs font-semibold text-purple-600 block mb-2">Calque</label>
                 <div className="flex gap-3">
-                  {['back', 'front'].map(s => (
-                    <button key={s} onClick={() => setSuffix(s)}
+                  {suffixOptions.map(opt => (
+                    <button key={opt.id} onClick={() => setSuffix(opt.id)}
                       className={`px-4 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
-                        suffix === s ? 'bg-winx-purple text-white border-winx-purple' : 'bg-white text-purple-500 border-purple-200'
+                        suffix === opt.id ? 'bg-winx-purple text-white border-winx-purple' : 'bg-white text-purple-500 border-purple-200'
                       }`}>
-                      {s === 'back' ? '⬅️ Arrière' : '➡️ Avant'}
+                      {opt.label}
                     </button>
                   ))}
                 </div>
@@ -402,9 +418,9 @@ export default function AdminPage() {
               <div className="bg-purple-50 rounded-xl px-4 py-2 text-xs text-purple-500">
                 📁 Fichier PNG à uploader ensuite :&nbsp;
                 <code className="font-bold text-winx-purple">
-                  {newVariantPart === 'hair'
-                    ? <>{newVariantId}_back.png &amp; {newVariantId}_front.png</>
-                    : <>{newVariantId}.png</>
+                  {SUFFIX_OPTIONS[newVariantPart]
+                    ? SUFFIX_OPTIONS[newVariantPart].map(o => `${newVariantId}_${o.id}.png`).join(' & ')
+                    : `${newVariantId}.png`
                   }
                 </code>
               </div>

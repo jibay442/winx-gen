@@ -121,6 +121,15 @@ export const EYE_COLORS = [
   { id: 'noir',     color: '#1A1A2E', label: 'Noir' },
 ]
 
+export const EYE_WHITE_COLORS = [
+  { id: 'blanc',    color: '#FFFFFF', label: 'Blanc' },
+  { id: 'ivoire',   color: '#F5F0E6', label: 'Ivoire' },
+  { id: 'rose',     color: '#FCE4EC', label: 'Rose pâle' },
+  { id: 'bleu',     color: '#E3F2FD', label: 'Bleu pâle' },
+  { id: 'lavande',  color: '#EDE7F6', label: 'Lavande' },
+  { id: 'dore',     color: '#FFF3D6', label: 'Doré pâle' },
+]
+
 export const LIP_COLORS = [
   { id: 'nude',       color: '#FAD7A0', label: 'Nude' },
   { id: 'peche',      color: '#F1948A', label: 'Pêche' },
@@ -164,6 +173,7 @@ export const DEFAULT_CHARACTER = {
   skinColor:      '#F5C5A3',
   eyes:           'eyes_01',
   eyeColor:       '#4A90D9',
+  eyeWhiteColor:  '#FFFFFF',
   hairBack:       'hair_01',
   hairBackColor:  '#8B4513',
   hairFront:      'hair_01',

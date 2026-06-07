@@ -21,7 +21,7 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
 
   const {
     body,      skinColor,
-    eyes,      eyeColor,
+    eyes,      eyeColor,    eyeWhiteColor,
     hairBack,  hairBackColor,
     hairFront, hairFrontColor,
     lips,      lipColor,
@@ -38,7 +38,8 @@ const CharacterPreview = forwardRef(function CharacterPreview({ character, class
     { id: 'bottom',     src: assetPath('bottom', bottom),             color: bottomColor    },
     { id: 'top',        src: assetPath('top',    top),                color: topColor       },
     { id: 'shoes',      src: assetPath('shoes',  shoes),              color: shoesColor     },
-    { id: 'eyes',       src: assetPath('eyes',   eyes),               color: eyeColor       },
+    { id: 'eyes-white', src: assetPath('eyes',   eyes, 'white'),      color: eyeWhiteColor  },
+    { id: 'eyes-iris',  src: assetPath('eyes',   eyes, 'iris'),       color: eyeColor       },
     { id: 'lips',       src: assetPath('lips',   lips),               color: lipColor       },
     { id: 'hair-front', src: assetPath('hair',   hairFront, 'front'), color: hairFrontColor },
   ].filter(Boolean)

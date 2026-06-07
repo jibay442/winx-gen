@@ -1,7 +1,7 @@
 import useWinxStore from '../../store/useWinxStore.js'
 import VariantSelector from './VariantSelector.jsx'
 import {
-  SKIN_COLORS, HAIR_COLORS, EYE_COLORS,
+  SKIN_COLORS, HAIR_COLORS, EYE_COLORS, EYE_WHITE_COLORS,
   LIP_COLORS, OUTFIT_COLORS, WINGS_COLORS,
 } from '../../data/variants.js'
 
@@ -25,6 +25,11 @@ export default function MenuPanel() {
   const handleCustomSkin = (e) => {
     const rect = e.currentTarget.getBoundingClientRect()
     openColorPicker('skin', rect.left - 228, rect.top)
+  }
+
+  const handleCustomEyeWhite = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    openColorPicker('eyesWhite', rect.left - 228, rect.top)
   }
 
   // Le store fusionne déjà avec les défauts dans applyConfig
@@ -75,9 +80,37 @@ export default function MenuPanel() {
         )}
 
         {activeMenu === 'eyes' && (
-          <VariantSelector variants={eyes} selectedId={character.eyes} charKey="eyes"
-            colorCharKey="eyeColor" colorTarget="eyes"
-            colors={EYE_COLORS} currentColor={character.eyeColor} />
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-3">
+                👁️ Iris
+              </p>
+              <VariantSelector variants={eyes} selectedId={character.eyes} charKey="eyes"
+                colorCharKey="eyeColor" colorTarget="eyes"
+                colors={EYE_COLORS} currentColor={character.eyeColor} />
+            </div>
+
+            <div className="border-t border-purple-100 pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-purple-600 uppercase tracking-wide">
+                  ⚪ Blanc de l'œil
+                </span>
+                <button className="color-swatch" style={{ background: character.eyeWhiteColor }}
+                  title="Couleur personnalisée" onClick={handleCustomEyeWhite} />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {EYE_WHITE_COLORS.map((c) => (
+                  <button key={c.id} title={c.label} className="color-swatch"
+                    style={{
+                      background:    c.color,
+                      outline:       character.eyeWhiteColor === c.color ? '2px solid #9333EA' : 'none',
+                      outlineOffset: '2px',
+                    }}
+                    onClick={() => useWinxStore.getState().setCharacterProp('eyeWhiteColor', c.color)} />
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Cheveux — arrière ET avant indépendants */}
